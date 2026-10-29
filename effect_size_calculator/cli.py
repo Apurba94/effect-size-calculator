@@ -8,20 +8,22 @@ from .core import (cohens_d, d_from_t, d_to_r, glass_delta, hedges_g, interpret_
 
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="effect-size-calculator", description="Compute effect sizes with CIs.")
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument("--json", action="store_true")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    m = sub.add_parser("means", help="from group means, SDs and sizes")
+    m = sub.add_parser("means", parents=[common], help="from group means, SDs and sizes")
     for a in ("m1", "s1", "n1", "m2", "s2", "n2"):
         m.add_argument(a, type=float)
     m.add_argument("--level", type=float, default=0.95)
-    t = sub.add_parser("t", help="from a t statistic")
+    t = sub.add_parser("t", parents=[common], help="from a t statistic")
     t.add_argument("t", type=float)
     t.add_argument("n1", type=int)
     t.add_argument("n2", type=int, nargs="?")
-    tb = sub.add_parser("table", help="from a 2x2 table a b c d (exposed: a events, b none; unexposed: c, d)")
+    tb = sub.add_parser("table", parents=[common],
+                        help="from a 2x2 table a b c d (exposed: a events, b none; unexposed: c, d)")
     for a in "abcd":
         tb.add_argument(a, type=float)
     tb.add_argument("--level", type=float, default=0.95)
-    ap.add_argument("--json", action="store_true")
     args = ap.parse_args(argv)
 
     if args.cmd == "means":
